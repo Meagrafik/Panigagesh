@@ -1,0 +1,15 @@
+{
+  "name": "panigagesh",
+  "version": "1.0.0",
+  "description": "Panigagesh-Score-Tool: ml reiner Alkohol pro Euro fuer das REWE-Sortiment, mit Nutri-Score-artiger A-E Note.",
+  "type": "commonjs",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "scrape": "node scraper/fetchRewe.js"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

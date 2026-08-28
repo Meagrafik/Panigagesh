@@ -1,0 +1,4 @@
+node_modules/
+data/markets/*.json
+data/debug/*
+!data/debug/.gitkeep
