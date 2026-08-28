@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panigagesh-Score</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Panigagesh-Score</h1>
+    <p class="subtitle">ml reiner Alkohol pro Euro &mdash; REWE-Sortiment</p>
+  </header>
+
+  <main>
+    <section class="panel" id="market-panel">
+      <h2>Markt</h2>
+      <div class="market-current" id="market-current">Lade Markt&hellip;</div>
+      <div class="market-search">
+        <input type="text" id="market-query" placeholder="PLZ, Stadt oder Marktname" />
+        <button id="market-search-btn">Suchen</button>
+      </div>
+      <ul class="market-results" id="market-results"></ul>
+      <p class="meta banner" id="example-data-banner" hidden>
+        ℹ️ Dies sind <strong>Beispieldaten</strong> zur Demonstration, keine
+        Live-REWE-Daten. Echte Daten kommen über <code>npm run scrape</code>.
+      </p>
+    </section>
+
+    <section class="panel" id="search-panel">
+      <h2>Produkt suchen</h2>
+      <input type="text" id="product-query" placeholder="z.B. Jägermeister, Wodka, Bier &hellip;" />
+      <div id="search-result"></div>
+    </section>
+
+    <section class="panel" id="filter-panel">
+      <h2>Filter</h2>
+      <div class="filter-row">
+        <span class="filter-label">Angebot:</span>
+        <div class="tabs" id="offer-tabs">
+          <button data-offer="standard" class="active">Standardsortiment</button>
+          <button data-offer="sonderpreis">Sonderangebote</button>
+          <button data-offer="alle">Beide</button>
+        </div>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Getränke-Kategorie:</span>
+        <div class="tabs" id="category-tabs">
+          <button data-category="alle" class="active">Alle</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="leaderboard-panel">
+      <h2>Bestenliste (Top 10)</h2>
+      <p class="meta">Höchster Panigagesh-Score der aktuellen Filterauswahl.</p>
+      <ol class="leaderboard" id="leaderboard-list"></ol>
+    </section>
+
+    <section class="panel" id="table-panel">
+      <div class="table-header">
+        <h2>Sortiment</h2>
+      </div>
+      <p class="meta" id="table-meta"></p>
+      <div class="table-scroll">
+        <table id="product-table">
+          <thead>
+            <tr>
+              <th data-sort="name">Name</th>
+              <th>Kategorie</th>
+              <th data-sort="price">Preis</th>
+              <th>Volumen</th>
+              <th>Vol.-%</th>
+              <th data-sort="score">Score (ml/€)</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody id="product-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="calculator-panel">
+      <h2>Manueller Rechner</h2>
+      <p class="meta">Für Produkte, die (noch) nicht im Datenset sind.</p>
+      <div class="calculator-form">
+        <label>Name <input type="text" id="calc-name" placeholder="optional" /></label>
+        <label>Preis (€) <input type="number" id="calc-price" step="0.01" min="0" /></label>
+        <label>Volumen (ml) <input type="number" id="calc-volume" step="1" min="0" /></label>
+        <label>Vol.-% <input type="number" id="calc-abv" step="0.1" min="0" /></label>
+        <button id="calc-btn">Berechnen</button>
+      </div>
+      <div id="calc-result"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      Panigagesh-Score = Volumen<sub>ml</sub> &times; (Vol.-% / 100) / Preis<sub>€</sub>.
+      Note A&ndash;E anhand fester, marktunabhängiger Grenzen (kein Vergleich relativ zum Regal).
+    </p>
+  </footer>
+
+  <script src="scoring.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
