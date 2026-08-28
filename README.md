@@ -195,6 +195,73 @@ curl -s "http://localhost:3000/api/products?market=germering-beispiel&category=s
 curl -s "http://localhost:3000/api/score?volumeMl=700&abvPercent=40&priceEur=15"
 ```
 
+## Deployment (auf eine echte Website bringen)
+
+Das Tool ist ein normaler Node/Express-Server — **kein** reines Static-Hosting
+wie GitHub Pages möglich, weil `/api/...` echte Server-Logik braucht. Jeder
+Anbieter, der einen Node-Prozess laufen lässt, funktioniert. Der Server liest
+den Port aus `process.env.PORT` (Fallback 3000) und bindet auf allen
+Interfaces — das passt ohne Anpassung zu den gängigen PaaS-Anbietern.
+
+### Option A: Render.com (kostenlos, empfohlen für den Einstieg)
+
+1. Auf [render.com](https://render.com) einloggen (GitHub-Login reicht) →
+   **New +** → **Web Service**.
+2. Das GitHub-Repo `Meagrafik/Panigagesh` auswählen und den Branch wählen,
+   den du live schalten willst.
+3. Einstellungen:
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+   - **Instance Type:** Free reicht zum Ausprobieren.
+4. **Create Web Service** klicken. Nach dem ersten Build ist die App unter
+   `https://<dein-service-name>.onrender.com` erreichbar.
+5. Eigene Domain: bei Render unter *Settings → Custom Domain* eintragen und
+   den angezeigten CNAME beim eigenen Domain-Registrar setzen.
+
+### Option B: Railway.app
+
+1. Auf [railway.app](https://railway.app) → **New Project** → **Deploy from
+   GitHub repo** → dasselbe Repo auswählen.
+2. Railway erkennt Node automatisch über `package.json`; Start Command ist
+   bereits `npm start` (aus dem `Procfile`/`scripts.start`).
+3. Unter **Settings → Networking** eine öffentliche Domain generieren
+   (oder eine eigene verbinden).
+
+### Option C: Eigener Server/VPS
+
+```bash
+git clone https://github.com/Meagrafik/Panigagesh.git
+cd Panigagesh
+npm install --omit=dev
+npm start                 # oder mit pm2: pm2 start server/index.js --name panigagesh
+```
+
+Davor einen Reverse Proxy (nginx/Caddy) mit TLS vor Port 3000 schalten, damit
+die Seite unter der eigenen Domain per HTTPS erreichbar ist. Caddy macht das
+mit einer Zeile in der `Caddyfile`:
+
+```
+deine-domain.de {
+  reverse_proxy localhost:3000
+}
+```
+
+### Was nach dem Deploy zu beachten ist
+
+- **Sofort nutzbar:** Der mitgelieferte Beispieldatensatz
+  (`data/markets/germering-beispiel.json`) ist Teil des Repos und daher nach
+  jedem Deploy da — die Seite zeigt also von Anfang an Bestenliste, Filter
+  und Tabelle.
+- **Flüchtiger Dateispeicher:** Bei Render/Railway (kostenlose Tarife) wird
+  das Dateisystem bei jedem Redeploy zurückgesetzt. Ergebnisse aus
+  `npm run scrape` oder aus einem live über die UI gescrapten Zusatzmarkt
+  gehen dabei verloren, solange sie nicht eingecheckt sind. Für dauerhafte
+  Scrape-Daten entweder das Ergebnis-JSON committen (wie beim Beispieldatensatz)
+  oder ein persistentes Volume/eine Managed-Disk beim Hoster dazubuchen.
+- **HTTPS/Domain:** Render und Railway liefern automatisch eine
+  `https://...`-URL; eine eigene Domain lässt sich bei beiden per CNAME
+  nachrüsten (siehe oben).
+
 ## Kalibrierung der A–E-Note
 
 Die festen Notengrenzen in `server/scoring.js` (und identisch in
