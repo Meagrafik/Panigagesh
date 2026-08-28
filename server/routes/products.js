@@ -76,6 +76,10 @@ router.get("/products/search", async (req, res) => {
       error: "Markt ist nicht gecacht und 'serviceType' fehlt für die Live-Suche.",
     });
   }
+  if (effectiveServiceType === "MANUAL") {
+    // Manuell erhobener Datensatz ohne echte REWE-Markt-ID - kein Live-Fallback möglich.
+    return res.json({ source: "cache", products: [] });
+  }
 
   try {
     const pageJson = await fetchProductsPage({

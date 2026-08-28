@@ -1,11 +1,11 @@
 // Clientseitiges Pendant zu server/scoring.js (kein Build-Step im Projekt,
 // daher bewusst dupliziert statt importiert - bei Änderungen an den festen
-// Notengrenzen BEIDE Dateien anpassen).
+// Notengrenzen BEIDE Dateien anpassen). Kalibrierung siehe Kommentar dort.
 const GRADE_THRESHOLDS = [
-  { grade: "A", min: 25 },
-  { grade: "B", min: 15 },
-  { grade: "C", min: 8 },
-  { grade: "D", min: 4 },
+  { grade: "A", min: 28 },
+  { grade: "B", min: 18 },
+  { grade: "C", min: 13 },
+  { grade: "D", min: 8 },
   { grade: "E", min: -Infinity },
 ];
 

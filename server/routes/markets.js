@@ -1,7 +1,7 @@
 const express = require("express");
 const { resolveMarketByPlz, searchMarkets } = require("../../scraper/reweClient");
 const { scrapeAndCacheMarket, readCachedMarket } = require("../../scraper/scrapeMarket");
-const { DEFAULT_PLZ } = require("../../scraper/config");
+const { DEFAULT_PLZ, MANUAL_SEED_WWIDENT } = require("../../scraper/config");
 
 const router = express.Router();
 
@@ -13,9 +13,17 @@ function pickPreferred(candidates) {
   );
 }
 
-// Default-Markt (REWE Germering) auflösen, ohne gleich das ganze Sortiment
-// zu scrapen - nur die Markt-ID wird ermittelt.
+// Default-Markt (REWE Germering) auflösen. Bevorzugt den mitgelieferten,
+// manuell erhobenen Startdatensatz (data/markets/germering-manual.json),
+// damit das Tool sofort nutzbar ist, ohne auf die (unverifizierte) Live-API
+// angewiesen zu sein. Erst wenn dieser fehlt, wird live gegen REWE
+// aufgelöst - nur die Markt-ID, kein Voll-Scrape.
 router.get("/markets/default", async (req, res) => {
+  const seed = readCachedMarket(MANUAL_SEED_WWIDENT);
+  if (seed) {
+    return res.json({ ...seed.market, cached: true });
+  }
+
   try {
     const candidates = await resolveMarketByPlz(DEFAULT_PLZ);
     const preferred = pickPreferred(candidates);

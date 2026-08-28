@@ -27,13 +27,35 @@ Zahl bekommt jedes Produkt eine **Panigagesh-Note von A (bester Wert) bis E
 
 ```bash
 npm install
-npm run scrape      # scraped REWE Germering (Standard-PLZ 82110) einmalig
 npm start            # startet den Server auf http://localhost:3000
 ```
 
-`npm run scrape -- --plz 12345` scraped stattdessen einen anderen Markt.
-Der Server kann Märkte auch **on-demand** scrapen, wenn sie über die
+Das Tool ist **sofort mit echten Daten nutzbar**: `data/markets/germering-manual.json`
+enthält 50 manuell recherchierte REWE-Germering-Produkte (Name, Preis,
+Volumen, Vol.-%) inkl. berechnetem Score und Note und ist der Default-Markt.
+
+Zusätzlich (optional, siehe Einschränkungen unten):
+
+```bash
+npm run scrape                  # Live-Scrape REWE Germering (PLZ 82110)
+npm run scrape -- --plz 12345   # Live-Scrape eines anderen Marktes
+```
+
+Der Server kann Märkte auch **on-demand** live scrapen, wenn sie über die
 UI-Marktsuche ausgewählt werden und noch nicht in `data/markets/` liegen.
+
+### Eigene manuelle Daten erfassen/aktualisieren
+
+Falls der Live-Scraper (noch) nicht funktioniert oder man Preise lieber von
+Hand pflegt: ein JSON-Array `[{ "name", "volumeMl", "abvPercent", "priceEur",
+"isSonderpreis"? }, ...]` anlegen und importieren:
+
+```bash
+node scraper/importManualDataset.js pfad/zu/daten.json germering-manual "REWE Germering"
+```
+
+Das überschreibt `data/markets/germering-manual.json` mit Score und Note pro
+Produkt.
 
 ## Architektur
 
@@ -49,22 +71,41 @@ UI-Marktsuche ausgewählt werden und noch nicht in `data/markets/` liegen.
   scoring.js           # Panigagesh-Score-Formel + feste A–E-Notengrenzen
   routes/markets.js    # Marktsuche/-auswahl (inkl. on-demand Scrape)
   routes/products.js   # Produktliste (aus Cache) + Live-Suchfallback
+  importManualDataset.js  # Import eines von Hand erhobenen Datensatzes
 /public
   index.html / app.js / style.css / scoring.js  # reines Vanilla-JS, kein Build
 /data
-  markets/<wwIdent>.json   # gecachtes Datenset pro Markt
+  markets/
+    germering-manual.json  # Startdatensatz: 50 echte REWE-Germering-Produkte
+    <wwIdent>.json          # weitere gecachte Datensets (Live-Scrape/Import)
 ```
 
-## ⚠️ Wichtige Einschränkungen
+## Kalibrierung der A–E-Note
 
-**REWE bietet keine offizielle Produkt-API.** Dieses Tool nutzt eine seit
-Jahren von mehreren Open-Source-Projekten genutzte, aber **inoffizielle**
-JSON-API unter `shop.rewe.de/api/...`, die der REWE-Online-Shop selbst
-verwendet. Sie kann sich jederzeit ändern.
+Die festen Notengrenzen in `server/scoring.js` (und identisch in
+`public/scoring.js`) sind **anhand echter Daten kalibriert**: 50 manuell bei
+REWE Germering recherchierte Produkte (Mittelwert 19,7 ml/€, Median 16,1
+ml/€, Spanne ca. 5,7–68,3 ml/€ — der komplette Datensatz liegt in
+`data/markets/germering-manual.json`). Die Grenzen (A ≥ 28, B 18–<28, C
+13–<18, D 8–<13, E < 8) wurden so gewählt, dass alle fünf Noten im echten
+Sortiment tatsächlich vorkommen (E 8 %, D 26 %, C 28 %, B 20 %, A 18 % der
+50 Beispielprodukte) statt z. B. Note E im Alltag nie zu vergeben. Kommen
+neue, deutlich andere Marktdaten hinzu, lohnt es sich, diese Verteilung
+erneut zu prüfen und die Grenzen ggf. nachzuziehen (in **beiden** Dateien).
 
-**Der Scraper wurde in der Entwicklungsumgebung dieses Tools nicht gegen die
-echte API getestet** — die Sandbox, in der dieses Projekt gebaut wurde,
-hatte keinen Netzwerkzugriff auf `shop.rewe.de`. Konkret heißt das:
+## ⚠️ Wichtige Einschränkungen zum Live-Scraper
+
+**REWE bietet keine offizielle Produkt-API.** Der optionale Live-Scraper
+(`npm run scrape`, `scraper/fetchRewe.js`) nutzt eine seit Jahren von
+mehreren Open-Source-Projekten genutzte, aber **inoffizielle** JSON-API
+unter `shop.rewe.de/api/...`, die der REWE-Online-Shop selbst verwendet. Sie
+kann sich jederzeit ändern. Das Tool selbst ist davon **nicht** abhängig —
+es funktioniert von Haus aus mit dem echten, manuell erhobenen
+Germering-Datensatz (siehe oben).
+
+**Der Live-Scraper wurde in der Entwicklungsumgebung dieses Tools nicht
+gegen die echte API getestet** — die Sandbox, in der dieses Projekt gebaut
+wurde, hatte keinen Netzwerkzugriff auf `shop.rewe.de`. Konkret heißt das:
 
 - Die Request-Struktur (Endpunkte, Query-Parameter wie `market`,
   `serviceTypes`, `categorySlug`, `search`) basiert auf öffentlich bekannten,
@@ -79,7 +120,7 @@ hatte keinen Netzwerkzugriff auf `shop.rewe.de`. Konkret heißt das:
   stattdessen die 5-stellige PLZ einzugeben (das nutzt den bestätigten
   `service-portfolio`-Endpunkt).
 
-### Kalibrierung (einmalig, mit echtem Internetzugriff nötig)
+### Live-Scraper testen/reparieren (einmalig, mit echtem Internetzugriff nötig)
 
 1. `npm run scrape -- --dump-raw` ausführen. Das speichert eine echte
    REWE-API-Antwort unter `data/debug/raw-<wwIdent>-<slug>.json`.
@@ -90,9 +131,6 @@ hatte keinen Netzwerkzugriff auf `shop.rewe.de`. Konkret heißt das:
    Konsole) prüfen: Wurden Kategorie-Slugs gefunden, oder ist auf
    Suchbegriffe zurückgefallen worden? Wie viele Produkte blieben
    `unparsed`?
-4. Die reale Score-Verteilung (min/max/Median) mit den festen Notengrenzen
-   in `server/scoring.js` (und `public/scoring.js` — beide synchron halten)
-   abgleichen und bei Bedarf nachjustieren.
 
 ### Weitere Hinweise
 

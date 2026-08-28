@@ -3,13 +3,19 @@
 
 // Feste, absolute Notengrenzen (siehe README/Plan: bewusst NICHT relativ zur
 // aktuellen Marktverteilung, damit "A" immer objektiv "guter Deal" bedeutet,
-// unabhaengig davon, was sonst noch im Regal steht). Erste Kalibrierung ohne
-// echte REWE-Daten - nach dem ersten Scrape ggf. anpassen.
+// unabhaengig davon, was sonst noch im Regal steht).
+//
+// Kalibriert anhand eines echten, manuell erhobenen Datensatzes von 50
+// REWE-Produkten (Mittelwert 19.7 ml/€, Median 16.1 ml/€, Spanne ca.
+// 5.7-68.3 ml/€ - siehe data/markets/germering-manual.json). Die Grenzen
+// wurden so gewaehlt, dass alle 5 Noten im realen Sortiment tatsaechlich
+// vorkommen (E 8%, D 24%, C 28%, B 20%, A 18% der 50 Beispielprodukte),
+// statt z.B. Note E im Alltag nie zu vergeben.
 const GRADE_THRESHOLDS = [
-  { grade: "A", min: 25 },
-  { grade: "B", min: 15 },
-  { grade: "C", min: 8 },
-  { grade: "D", min: 4 },
+  { grade: "A", min: 28 },
+  { grade: "B", min: 18 },
+  { grade: "C", min: 13 },
+  { grade: "D", min: 8 },
   { grade: "E", min: -Infinity },
 ];
 
