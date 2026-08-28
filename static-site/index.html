@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panigagesh</title>
+<meta name="description" content="Panigagesh-Score: ml reiner Alkohol pro Euro fuer das REWE-Alkoholsortiment, mit Bestenliste, Kategorie-Filter und Rechner.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Karla:ital,wght@0,400;0,500;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #f0eee4;
+    --surface: #ffffff;
+    --surface-2: #f7f5ec;
+    --ink: #221e17;
+    --muted: #6e6656;
+    --accent: #b4682b;
+    --accent-ink: #fffaf2;
+    --line: #dad4c2;
+    --shadow: 0 1px 0 rgba(34, 30, 23, 0.06);
+
+    --grade-a: #3f7d3b;
+    --grade-b: #8fae3d;
+    --grade-c: #dfad2f;
+    --grade-d: #d97a34;
+    --grade-e: #c1432e;
+
+    --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+    --font-body: "Karla", "Segoe UI", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15130e;
+      --surface: #1e1b14;
+      --surface-2: #211d16;
+      --ink: #ece6d7;
+      --muted: #a29a85;
+      --accent: #e39952;
+      --accent-ink: #1a1508;
+      --line: #332f22;
+      --shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #15130e;
+    --surface: #1e1b14;
+    --surface-2: #211d16;
+    --ink: #ece6d7;
+    --muted: #a29a85;
+    --accent: #e39952;
+    --accent-ink: #1a1508;
+    --line: #332f22;
+    --shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+
+  /* ---------- Header: stamped ticket ---------- */
+
+  .ticket {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-bottom: none;
+    border-radius: 14px 14px 0 0;
+    padding: 2rem 2rem 1.75rem;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+
+  .ticket-perf {
+    height: 14px;
+    background:
+      radial-gradient(circle at 12px 0, transparent 7px, var(--surface) 7.5px) top / 24px 14px repeat-x,
+      var(--bg);
+    border-left: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0.5rem;
+  }
+
+  h1.wordmark {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(2.4rem, 7vw, 3.6rem);
+    letter-spacing: 0.01em;
+    line-height: 0.92;
+    margin: 0 0 0.6rem;
+    text-wrap: balance;
+  }
+
+  .tagline {
+    margin: 0 0 1rem;
+    max-width: 62ch;
+    color: var(--muted);
+    font-size: 1.02rem;
+  }
+
+  .formula {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    background: var(--surface-2);
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    padding: 0.5rem 0.8rem;
+    color: var(--ink);
+  }
+
+  .formula strong { color: var(--accent); }
+
+  /* ---------- Demo banner ---------- */
+
+  .banner {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-top: none;
+    padding: 0.85rem 2rem;
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+
+  .banner strong { color: var(--ink); }
+
+  /* ---------- Sections ---------- */
+
+  section.card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-top: none;
+    padding: 1.5rem 2rem;
+  }
+
+  section.card:last-of-type {
+    border-radius: 0 0 14px 14px;
+    padding-bottom: 1.75rem;
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.4rem;
+    letter-spacing: 0.01em;
+    margin: 0 0 0.9rem;
+    text-wrap: balance;
+  }
+
+  .section-note {
+    margin: -0.5rem 0 1rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  /* ---------- Filter tabs ---------- */
+
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .tabs button {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    background: var(--surface-2);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.4rem 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .tabs button:hover { border-color: var(--accent); }
+
+  .tabs button.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  button:focus-visible,
+  input:focus-visible,
+  th[data-sort]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* ---------- Leaderboard ---------- */
+
+  .leaderboard {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: rank;
+  }
+
+  .leaderboard li {
+    counter-increment: rank;
+    display: grid;
+    grid-template-columns: 2.2rem 1fr auto auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px dashed var(--line);
+  }
+
+  .leaderboard li:last-child { border-bottom: none; }
+
+  .leaderboard li::before {
+    content: counter(rank);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 0.95rem;
+  }
+
+  .lb-name { font-weight: 600; }
+  .lb-cat { color: var(--muted); font-size: 0.82rem; }
+
+  .lb-score {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* ---------- Grade chip ---------- */
+
+  .grade-bar {
+    display: inline-flex;
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    vertical-align: middle;
+  }
+
+  .grade-seg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.15rem;
+    height: 1.15rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.62rem;
+    color: #fff;
+    opacity: 0.3;
+  }
+
+  .grade-seg.active {
+    opacity: 1;
+    width: 1.45rem;
+    height: 1.45rem;
+    font-size: 0.78rem;
+    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.5);
+  }
+
+  .grade-a { background: var(--grade-a); }
+  .grade-b { background: var(--grade-b); }
+  .grade-c { background: var(--grade-c); }
+  .grade-d { background: var(--grade-d); }
+  .grade-e { background: var(--grade-e); }
+
+  /* ---------- Table ---------- */
+
+  .table-scroll { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+
+  th, td {
+    padding: 0.55rem 0.7rem;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+
+  thead th {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  th[data-sort] { cursor: pointer; user-select: none; }
+  th[data-sort]:hover { color: var(--accent); }
+  th[data-sort] .arrow { opacity: 0.5; margin-left: 0.2rem; }
+
+  td.num, th.num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  tbody tr:hover { background: var(--surface-2); }
+
+  .cat-pill {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  /* ---------- Calculator ---------- */
+
+  .calc-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .field input {
+    font: inherit;
+    font-family: var(--font-mono);
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 0.5rem 0.6rem;
+    color: var(--ink);
+    width: 9rem;
+  }
+
+  .field.name input { width: 12rem; font-family: var(--font-body); }
+
+  .calc-btn {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: none;
+    border-radius: 6px;
+    padding: 0.6rem 1.1rem;
+    cursor: pointer;
+    height: 2.5rem;
+  }
+
+  .calc-btn:hover { filter: brightness(1.06); }
+
+  #calc-result {
+    margin-top: 1.1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--line);
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1rem;
+  }
+
+  #calc-result.show { display: flex; }
+
+  #calc-result .score-value {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+
+  .error { color: var(--grade-e); font-size: 0.85rem; }
+
+  footer {
+    max-width: 880px;
+    margin: 1.25rem auto 0;
+    padding: 0 1.25rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  footer code {
+    font-family: var(--font-mono);
+    background: var(--surface-2);
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="ticket">
+    <p class="eyebrow">REWE Germering &middot; Alkohol-Sortiment</p>
+    <h1 class="wordmark">PANIGAGESH</h1>
+    <p class="tagline">
+      Wie viel reinen Alkohol bekommst du für dein Geld? Jedes Getränk bekommt
+      eine Zahl &mdash; und eine Note von A bis E, angelehnt an den Nutri-Score.
+    </p>
+    <div class="formula">
+      Score <strong>=</strong> Volumen<sub>ml</sub> &times; (Vol.-% / 100) / Preis<sub>&euro;</sub>
+    </div>
+  </header>
+  <div class="ticket-perf" aria-hidden="true"></div>
+  <p class="banner">
+    <strong>Beispieldaten aus REWE Germering.</strong> 50 handrecherchierte
+    Preise, Stand siehe Repo. Diese Seite ist eine reine Static-Version ohne
+    Server &mdash; für Marktwechsel und automatischen Preis-Import gibt es die
+    volle Node-Version im Projekt-Repository.
+  </p>
+
+  <section class="card">
+    <h2>Filter</h2>
+    <p class="section-note">Getränke-Kategorie &mdash; wirkt auf Bestenliste und Tabelle.</p>
+    <div class="tabs" id="category-tabs"></div>
+  </section>
+
+  <section class="card">
+    <h2>Bestenliste</h2>
+    <p class="section-note">Top 10 nach Panigagesh-Score in der aktuellen Auswahl.</p>
+    <ol class="leaderboard" id="leaderboard"></ol>
+  </section>
+
+  <section class="card">
+    <h2>Sortiment</h2>
+    <p class="section-note" id="table-meta"></p>
+    <div class="table-scroll">
+      <table id="product-table">
+        <thead>
+          <tr>
+            <th data-sort="name">Name</th>
+            <th>Kategorie</th>
+            <th class="num" data-sort="priceEur">Preis</th>
+            <th class="num" data-sort="volumeMl">Volumen</th>
+            <th class="num" data-sort="abvPercent">Vol.-%</th>
+            <th class="num" data-sort="score">Score</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Rechner</h2>
+    <p class="section-note">Für ein Getränk, das (noch) nicht in der Liste steht.</p>
+    <div class="calc-grid">
+      <label class="field name">Name
+        <input type="text" id="calc-name" placeholder="optional" />
+      </label>
+      <label class="field">Preis (&euro;)
+        <input type="number" id="calc-price" step="0.01" min="0" />
+      </label>
+      <label class="field">Volumen (ml)
+        <input type="number" id="calc-volume" step="1" min="0" />
+      </label>
+      <label class="field">Vol.-%
+        <input type="number" id="calc-abv" step="0.1" min="0" />
+      </label>
+      <button class="calc-btn" id="calc-btn">Berechnen</button>
+    </div>
+    <div id="calc-result"></div>
+  </section>
+</div>
+
+<footer>
+  Feste Notengrenzen (ml Alkohol/&euro;): <code>A&nbsp;&ge;28</code>
+  <code>B&nbsp;18&ndash;28</code> <code>C&nbsp;13&ndash;18</code>
+  <code>D&nbsp;8&ndash;13</code> <code>E&nbsp;&lt;8</code> &mdash; bewusst fest,
+  nicht relativ zum aktuellen Regal.
+</footer>
+
+<script>
+  const PRODUCTS = [{"name":"Wappenlese Weißwein lieblich","category":"wein","priceEur":1.39,"volumeMl":1000,"abvPercent":9.5,"score":68.35,"grade":"A"},{"name":"Sangria (Trtrapack)","category":"sonstige","priceEur":1.79,"volumeMl":1500,"abvPercent":7,"score":58.66,"grade":"A"},{"name":"Kaliskaya","category":"spirituosen","priceEur":5.49,"volumeMl":700,"abvPercent":37.5,"score":47.81,"grade":"A"},{"name":"Kronenhof Weizenkorn","category":"spirituosen","priceEur":4.99,"volumeMl":700,"abvPercent":32,"score":44.89,"grade":"A"},{"name":"Kronenhof Doppelkorn","category":"spirituosen","priceEur":5.99,"volumeMl":700,"abvPercent":38,"score":44.41,"grade":"A"},{"name":"Weingeist (Amazon)","category":"spirituosen","priceEur":29.9,"volumeMl":1000,"abvPercent":96.4,"score":32.24,"grade":"A"},{"name":"Hugo Rosé Risante (larsini)","category":"sekt","priceEur":1.79,"volumeMl":750,"abvPercent":6.9,"score":28.91,"grade":"A"},{"name":"Augustiner Hell","category":"bier","priceEur":0.9,"volumeMl":500,"abvPercent":5.2,"score":28.89,"grade":"A"},{"name":"Morio Muskat (SCHOENAICH)","category":"wein","priceEur":2.49,"volumeMl":750,"abvPercent":9.5,"score":28.61,"grade":"A"},{"name":"Vodka Gorbatschow","category":"spirituosen","priceEur":9.79,"volumeMl":700,"abvPercent":37.5,"score":26.81,"grade":"B"},{"name":"Pfeffi","category":"spirituosen","priceEur":4.99,"volumeMl":700,"abvPercent":18,"score":25.25,"grade":"B"},{"name":"Strohrum 80","category":"spirituosen","priceEur":16.49,"volumeMl":500,"abvPercent":80,"score":24.26,"grade":"B"},{"name":"Pitú Original do Brasil","category":"spirituosen","priceEur":11.99,"volumeMl":700,"abvPercent":38,"score":22.19,"grade":"B"},{"name":"Captain Morgan White Rum","category":"spirituosen","priceEur":12.99,"volumeMl":700,"abvPercent":37.5,"score":20.21,"grade":"B"},{"name":"9Mile Vodka","category":"spirituosen","priceEur":13.99,"volumeMl":700,"abvPercent":37.5,"score":18.76,"grade":"B"},{"name":"Gordons Gin","category":"spirituosen","priceEur":13.99,"volumeMl":700,"abvPercent":37.5,"score":18.76,"grade":"B"},{"name":"360 Vodka","category":"spirituosen","priceEur":13.99,"volumeMl":700,"abvPercent":37.5,"score":18.76,"grade":"B"},{"name":"Absolut Vodka","category":"spirituosen","priceEur":14.99,"volumeMl":700,"abvPercent":40,"score":18.68,"grade":"B"},{"name":"Bacardi Carta Blanca","category":"spirituosen","priceEur":14.49,"volumeMl":700,"abvPercent":37.5,"score":18.12,"grade":"B"},{"name":"Sierra Tequila Silver","category":"spirituosen","priceEur":14.99,"volumeMl":700,"abvPercent":38,"score":17.75,"grade":"C"},{"name":"Havana Club Rum","category":"spirituosen","priceEur":14.99,"volumeMl":700,"abvPercent":37.5,"score":17.51,"grade":"C"},{"name":"Jim Beam Kentucky atraight Bourbon Whiskey","category":"spirituosen","priceEur":15.99,"volumeMl":700,"abvPercent":40,"score":17.51,"grade":"C"},{"name":"Berentzen Apfel","category":"spirituosen","priceEur":7.29,"volumeMl":700,"abvPercent":18,"score":17.28,"grade":"C"},{"name":"Jägermeister (0,7)","category":"spirituosen","priceEur":14.49,"volumeMl":700,"abvPercent":35,"score":16.91,"grade":"C"},{"name":"Bowle Katlenburger ( Nahkauf)","category":"sonstige","priceEur":1,"volumeMl":330,"abvPercent":5,"score":16.5,"grade":"C"},{"name":"Berliner Luft","category":"spirituosen","priceEur":7.99,"volumeMl":700,"abvPercent":18,"score":15.77,"grade":"C"},{"name":"Bacardi Razz","category":"spirituosen","priceEur":14.49,"volumeMl":700,"abvPercent":32,"score":15.46,"grade":"C"},{"name":"Salitos Ice (Dose)","category":"bier","priceEur":1.69,"volumeMl":500,"abvPercent":5.2,"score":15.38,"grade":"C"},{"name":"Berentzen Waldmeister","category":"spirituosen","priceEur":7.29,"volumeMl":700,"abvPercent":16,"score":15.36,"grade":"C"},{"name":"Berentzen Waldfrucht","category":"spirituosen","priceEur":7.29,"volumeMl":700,"abvPercent":16,"score":15.36,"grade":"C"},{"name":"Berentzen Sauerer Apfel","category":"spirituosen","priceEur":7.29,"volumeMl":700,"abvPercent":16,"score":15.36,"grade":"C"},{"name":"Boscabana Energy","category":"sonstige","priceEur":0.99,"volumeMl":250,"abvPercent":5.9,"score":14.9,"grade":"C"},{"name":"Jack Daniel´s","category":"spirituosen","priceEur":19.99,"volumeMl":700,"abvPercent":40,"score":14.01,"grade":"C"},{"name":"Berentzen Sweet Popcorn","category":"spirituosen","priceEur":8.29,"volumeMl":700,"abvPercent":15,"score":12.67,"grade":"D"},{"name":"Feigling","category":"spirituosen","priceEur":7.99,"volumeMl":500,"abvPercent":20,"score":12.52,"grade":"D"},{"name":"Eckes","category":"spirituosen","priceEur":7.99,"volumeMl":500,"abvPercent":20,"score":12.52,"grade":"D"},{"name":"Desperados Mochito Beer","category":"bier","priceEur":1.69,"volumeMl":330,"abvPercent":5.9,"score":11.52,"grade":"D"},{"name":"Unbekanntes Produkt","category":"sonstige","priceEur":1.59,"volumeMl":330,"abvPercent":5.2,"score":10.79,"grade":"D"},{"name":"Ficken (Tankstelle)","category":"spirituosen","priceEur":9.99,"volumeMl":700,"abvPercent":15,"score":10.51,"grade":"D"},{"name":"Jack Daniel´s mixed with Coca Cola zero Sugar (Pennergranate)","category":"spirituosen","priceEur":3.19,"volumeMl":330,"abvPercent":10,"score":10.34,"grade":"D"},{"name":"Salitos Tequila Bier (Flasche 0,33)","category":"spirituosen","priceEur":1.89,"volumeMl":330,"abvPercent":5.9,"score":10.3,"grade":"D"},{"name":"Corona","category":"bier","priceEur":1.59,"volumeMl":355,"abvPercent":4.5,"score":10.05,"grade":"D"},{"name":"Sombersby","category":"bier","priceEur":1.49,"volumeMl":330,"abvPercent":4.5,"score":9.97,"grade":"D"},{"name":"Berentzen Smoothie Shot Fruity Love","category":"spirituosen","priceEur":7.99,"volumeMl":500,"abvPercent":15,"score":9.39,"grade":"D"},{"name":"Berentzen Smoothie Shot Tropical Fruit","category":"spirituosen","priceEur":7.99,"volumeMl":500,"abvPercent":15,"score":9.39,"grade":"D"},{"name":"Löschzwerg Cola Weizen","category":"bier","priceEur":1.09,"volumeMl":330,"abvPercent":2.8,"score":8.48,"grade":"D"},{"name":"kleiner Klopfer (Packungsdurchschnitt)","category":"spirituosen","priceEur":10.99,"volumeMl":500,"abvPercent":15,"score":6.82,"grade":"E"},{"name":"Beledere Vodka","category":"spirituosen","priceEur":44.99,"volumeMl":700,"abvPercent":40,"score":6.22,"grade":"E"},{"name":"Desperados Lime Tequila Flavoured","category":"spirituosen","priceEur":1.69,"volumeMl":330,"abvPercent":3,"score":5.86,"grade":"E"},{"name":"Aperol Aperitivo","category":"spirituosen","priceEur":13.49,"volumeMl":700,"abvPercent":11,"score":5.71,"grade":"E"}];
+
+  const CATEGORIES = [
+    { id: "alle", label: "Alle" },
+    { id: "wein", label: "Wein" },
+    { id: "bier", label: "Bier" },
+    { id: "sekt", label: "Sekt" },
+    { id: "spirituosen", label: "Spirituosen" },
+    { id: "sonstige", label: "Sonstige" },
+  ];
+  const CATEGORY_LABELS = Object.fromEntries(CATEGORIES.map((c) => [c.id, c.label]));
+
+  const GRADE_THRESHOLDS = [
+    { grade: "A", min: 28 },
+    { grade: "B", min: 18 },
+    { grade: "C", min: 13 },
+    { grade: "D", min: 8 },
+    { grade: "E", min: -Infinity },
+  ];
+
+  const state = { category: "alle", sort: "score", dir: "desc" };
+
+  function panigageshScore(volumeMl, abvPercent, priceEur) {
+    if (!(volumeMl > 0) || !(abvPercent > 0) || !(priceEur > 0)) return null;
+    return (volumeMl * (abvPercent / 100)) / priceEur;
+  }
+
+  function gradeForScore(score) {
+    if (score == null || Number.isNaN(score)) return null;
+    for (const { grade, min } of GRADE_THRESHOLDS) {
+      if (score >= min) return grade;
+    }
+    return "E";
+  }
+
+  function gradeBarHtml(grade) {
+    return (
+      '<span class="grade-bar">' +
+      ["A", "B", "C", "D", "E"]
+        .map((g) => {
+          const active = g === grade;
+          return (
+            '<span class="grade-seg grade-' +
+            g.toLowerCase() +
+            (active ? " active" : "") +
+            '">' +
+            g +
+            "</span>"
+          );
+        })
+        .join("") +
+      "</span>"
+    );
+  }
+
+  function fmtEur(v) { return v.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €"; }
+  function fmtMl(v) { return Math.round(v) + " ml"; }
+  function fmtAbv(v) { return v.toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " %"; }
+  function fmtScore(v) { return v.toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
+
+  function filtered() {
+    if (state.category === "alle") return PRODUCTS;
+    return PRODUCTS.filter((p) => p.category === state.category);
+  }
+
+  function sorted(list) {
+    const dir = state.dir === "asc" ? 1 : -1;
+    const key = state.sort;
+    return [...list].sort((a, b) => {
+      if (typeof a[key] === "string") return dir * a[key].localeCompare(b[key]);
+      return dir * (a[key] - b[key]);
+    });
+  }
+
+  function renderCategoryTabs() {
+    const el = document.getElementById("category-tabs");
+    el.innerHTML = CATEGORIES.map(
+      (c) =>
+        '<button data-category="' +
+        c.id +
+        '" class="' +
+        (c.id === state.category ? "active" : "") +
+        '">' +
+        c.label +
+        "</button>"
+    ).join("");
+    el.querySelectorAll("button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.category = btn.dataset.category;
+        renderCategoryTabs();
+        renderAll();
+      });
+    });
+  }
+
+  function renderLeaderboard() {
+    const list = sorted(filtered().slice()).sort((a, b) => b.score - a.score).slice(0, 10);
+    const el = document.getElementById("leaderboard");
+    if (list.length === 0) {
+      el.innerHTML = "<li>Keine Produkte in dieser Auswahl.</li>";
+      return;
+    }
+    el.innerHTML = list
+      .map(
+        (p) =>
+          "<li><span></span><span><span class=\"lb-name\">" +
+          p.name +
+          '</span> <span class="lb-cat">(' +
+          CATEGORY_LABELS[p.category] +
+          ")</span></span><span class=\"lb-score\">" +
+          fmtScore(p.score) +
+          " ml/€</span><span>" +
+          gradeBarHtml(p.grade) +
+          "</span></li>"
+      )
+      .join("");
+  }
+
+  function renderTable() {
+    const list = sorted(filtered());
+    document.getElementById("table-meta").textContent = list.length + " Produkte in dieser Auswahl.";
+    const body = document.getElementById("table-body");
+    if (list.length === 0) {
+      body.innerHTML = '<tr><td colspan="7">Keine Produkte in dieser Auswahl.</td></tr>';
+      return;
+    }
+    body.innerHTML = list
+      .map(
+        (p) =>
+          "<tr><td>" +
+          p.name +
+          '</td><td class="cat-pill">' +
+          CATEGORY_LABELS[p.category] +
+          '</td><td class="num">' +
+          fmtEur(p.priceEur) +
+          '</td><td class="num">' +
+          fmtMl(p.volumeMl) +
+          '</td><td class="num">' +
+          fmtAbv(p.abvPercent) +
+          '</td><td class="num">' +
+          fmtScore(p.score) +
+          "</td><td>" +
+          gradeBarHtml(p.grade) +
+          "</td></tr>"
+      )
+      .join("");
+  }
+
+  function renderAll() {
+    renderLeaderboard();
+    renderTable();
+  }
+
+  document.querySelectorAll("#product-table thead th[data-sort]").forEach((th) => {
+    th.tabIndex = 0;
+    th.addEventListener("click", () => {
+      const key = th.dataset.sort;
+      if (state.sort === key) {
+        state.dir = state.dir === "asc" ? "desc" : "asc";
+      } else {
+        state.sort = key;
+        state.dir = "desc";
+      }
+      renderTable();
+    });
+    th.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        th.click();
+      }
+    });
+  });
+
+  document.getElementById("calc-btn").addEventListener("click", () => {
+    const price = parseFloat(document.getElementById("calc-price").value);
+    const volume = parseFloat(document.getElementById("calc-volume").value);
+    const abv = parseFloat(document.getElementById("calc-abv").value);
+    const name = document.getElementById("calc-name").value.trim() || "Produkt";
+    const resultEl = document.getElementById("calc-result");
+    const score = panigageshScore(volume, abv, price);
+    resultEl.classList.add("show");
+    if (score == null) {
+      resultEl.innerHTML = '<span class="error">Bitte Preis, Volumen und Vol.-% als positive Zahlen angeben.</span>';
+      return;
+    }
+    const grade = gradeForScore(score);
+    resultEl.innerHTML =
+      "<strong>" +
+      name +
+      '</strong><span class="score-value">' +
+      fmtScore(score) +
+      " ml/€</span>" +
+      gradeBarHtml(grade);
+  });
+
+  renderCategoryTabs();
+  renderAll();
+</script>
+</body>
+</html>

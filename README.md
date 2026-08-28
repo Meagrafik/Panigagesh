@@ -195,6 +195,28 @@ curl -s "http://localhost:3000/api/products?market=germering-beispiel&category=s
 curl -s "http://localhost:3000/api/score?volumeMl=700&abvPercent=40&priceEur=15"
 ```
 
+## Static-Version für reines PHP-/FTP-Webhosting (z. B. 1&1/IONOS)
+
+Klassisches Shared-Webhosting ohne Node.js-Unterstützung (Standard bei
+1&1/IONOS-, Strato- & Co.-Basistarifen, Upload nur per FTP/FileZilla) kann
+keinen Node-Server ausführen. Dafür liegt unter `static-site/index.html`
+eine **komplett eigenständige, serverlose Version** des Tools: alle 50
+Beispieldaten sind direkt in die Seite eingebettet, Bestenliste,
+Getränke-Kategorie-Filter, sortierbare Tabelle und Rechner laufen rein im
+Browser per JavaScript — keine API, kein Backend nötig.
+
+**So hochladen:**
+1. `static-site/index.html` per FileZilla in einen (neuen) Ordner im
+   Webspace hochladen, z. B. `/panigagesh/index.html`.
+2. Fertig — erreichbar unter `https://deine-domain.de/panigagesh/`.
+
+Einschränkungen gegenüber der vollen Node-Version: kein Marktwechsel, keine
+Live-Produktsuche gegen REWE und keine automatische Aktualisierung — die
+Daten sind zum Zeitpunkt des Hochladens eingefroren. Um die Zahlen zu
+aktualisieren, `static-site/index.html` neu aus einer aktuellen
+`data/markets/*.json` generieren (das `PRODUCTS`-Array im `<script>`-Block
+ersetzen) und erneut hochladen.
+
 ## Deployment (auf eine echte Website bringen)
 
 Das Tool ist ein normaler Node/Express-Server — **kein** reines Static-Hosting
