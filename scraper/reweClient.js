@@ -13,6 +13,7 @@
 const { setTimeout: sleep } = require("timers/promises");
 const fs = require("fs");
 const path = require("path");
+const { categorizeProduct } = require("./categorize");
 const {
   REQUEST_DELAY_MS,
   MAX_RETRIES,
@@ -197,8 +198,9 @@ function extractProductFields(product) {
   const searchText = `${name} ${grammage}`;
   const volumeMl = parseVolumeMl(searchText);
   const abvPercent = parseAbvPercent(searchText);
+  const category = categorizeProduct(name);
 
-  return { id, name, grammage, priceEur, volumeMl, abvPercent, isSonderpreis };
+  return { id, name, grammage, priceEur, volumeMl, abvPercent, isSonderpreis, category };
 }
 
 function extractProductList(pageJson) {

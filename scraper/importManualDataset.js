@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 // Importiert einen manuell erhobenen Datensatz (JSON-Array mit
-// {name, volumeMl, abvPercent, priceEur, isSonderpreis?}) und schreibt ihn
-// im selben Format wie ein Scrape-Ergebnis nach data/markets/<wwIdent>.json.
+// {name, volumeMl, abvPercent, priceEur, isSonderpreis?, category?}) und
+// schreibt ihn im selben Format wie ein Scrape-Ergebnis nach
+// data/markets/<wwIdent>.json.
 //
-// Sinnvoll, solange der Live-Scraper (scraper/fetchRewe.js) nicht gegen die
-// echte REWE-API verifiziert ist (siehe README) - von Hand recherchierte
-// Preise/Volumen/Vol.-% lassen sich so trotzdem als vollwertiger "Markt" im
-// Tool nutzen, inkl. Score- und Notenberechnung.
+// WICHTIG: Das ist ein Werkzeug fuer BEISPIEL-/Demo-Daten oder als
+// Uebergangsloesung, solange der Live-Scraper (scraper/fetchRewe.js) nicht
+// gegen die echte REWE-API verifiziert ist. Die eigentliche, produktive
+// Datenquelle des Tools soll der Scraper sein (siehe README) - dieses
+// Skript ist kein Ersatz dafuer, sondern nur eine Krücke bis dahin.
 //
 // Nutzung:
 //   node scraper/importManualDataset.js <input.json> [wwIdent] [marktname]
@@ -14,6 +16,7 @@
 const fs = require("fs");
 const path = require("path");
 const { scoreAndGrade } = require("../server/scoring");
+const { categorizeProduct } = require("./categorize");
 
 function slugify(name, index) {
   const base = (name || "unbekannt")
@@ -32,8 +35,8 @@ function main() {
     process.exitCode = 1;
     return;
   }
-  const wwIdent = wwIdentArg || "germering-manual";
-  const marketName = nameArg || "REWE Germering (manuell erhoben)";
+  const wwIdent = wwIdentArg || "germering-beispiel";
+  const marketName = nameArg || "REWE Germering – Beispieldaten (kein Live-Scrape)";
 
   const raw = JSON.parse(fs.readFileSync(path.resolve(inputFile), "utf8"));
   const parsed = [];
@@ -43,8 +46,9 @@ function main() {
     const name = entry.name && entry.name.trim() ? entry.name.trim() : "Unbekanntes Produkt";
     const { volumeMl, abvPercent, priceEur } = entry;
     const isSonderpreis = Boolean(entry.isSonderpreis);
+    const category = entry.category || categorizeProduct(name);
     const { score, grade } = scoreAndGrade(volumeMl, abvPercent, priceEur);
-    const fields = { id: slugify(name, index), name, grammage: null, priceEur, volumeMl, abvPercent, isSonderpreis };
+    const fields = { id: slugify(name, index), name, grammage: null, priceEur, volumeMl, abvPercent, isSonderpreis, category };
     if (score == null) {
       unparsed.push(fields);
     } else {

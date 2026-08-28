@@ -1,5 +1,5 @@
 node_modules/
 data/markets/*.json
-!data/markets/germering-manual.json
+!data/markets/germering-beispiel.json
 data/debug/*
 !data/debug/.gitkeep

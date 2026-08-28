@@ -128,19 +128,38 @@ button:hover {
   gap: 0.5rem;
 }
 
-.category-tabs {
+.filter-row {
   display: flex;
-  gap: 0.4rem;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
 }
 
-.category-tabs button {
+.filter-row:last-child {
+  margin-bottom: 0;
+}
+
+.filter-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  min-width: 9rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.tabs button {
   background: #eee;
   color: var(--text);
   font-size: 0.85rem;
   padding: 0.4rem 0.7rem;
 }
 
-.category-tabs button.active {
+.tabs button.active {
   background: var(--accent);
   color: white;
 }
@@ -148,6 +167,51 @@ button:hover {
 .meta {
   color: var(--muted);
   font-size: 0.85rem;
+}
+
+.banner {
+  background: #fff4e5;
+  border: 1px solid #f3d9ab;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.leaderboard {
+  list-style: none;
+  counter-reset: rank;
+  margin: 0;
+  padding: 0;
+}
+
+.leaderboard li {
+  counter-increment: rank;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.leaderboard li::before {
+  content: counter(rank) ".";
+  font-weight: 700;
+  color: var(--accent);
+  margin-right: 0.5rem;
+}
+
+.rank-name {
+  flex: 1;
+  min-width: 10rem;
+}
+
+.rank-score {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
 }
 
 .table-scroll {

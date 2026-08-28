@@ -2,13 +2,21 @@ const express = require("express");
 const { readCachedMarket } = require("../../scraper/scrapeMarket");
 const { fetchProductsPage, extractProductFields, extractProductList } = require("../../scraper/reweClient");
 const { scoreAndGrade, GRADE_THRESHOLDS } = require("../scoring");
+const { CATEGORIES } = require("../../scraper/categorize");
 
 const router = express.Router();
 
-function byCategory(products, category) {
-  if (category === "sonderpreis") return products.filter((p) => p.isSonderpreis);
-  if (category === "alle") return products;
+// Angebots-Filter: Standardsortiment vs. Sonderpreis vs. beides.
+function byOffer(products, offer) {
+  if (offer === "sonderpreis") return products.filter((p) => p.isSonderpreis);
+  if (offer === "alle") return products;
   return products.filter((p) => !p.isSonderpreis); // Default: standard
+}
+
+// Getränke-Kategorie-Filter (Wein, Bier, Sekt, Spirituosen, Sonstige).
+function byDrinkCategory(products, category) {
+  if (!category || category === "alle") return products;
+  return products.filter((p) => p.category === category);
 }
 
 function byQuery(products, q) {
@@ -27,7 +35,7 @@ const SORTERS = {
 };
 
 router.get("/products", (req, res) => {
-  const { market, q, sort = "score_desc", category = "standard" } = req.query;
+  const { market, q, sort = "score_desc", offer = "standard", category = "alle", limit } = req.query;
   if (!market) {
     return res.status(400).json({ error: "Query-Parameter 'market' (wwIdent) fehlt." });
   }
@@ -38,15 +46,20 @@ router.get("/products", (req, res) => {
     });
   }
 
-  let products = byCategory(cached.products, category);
+  let products = byOffer(cached.products, offer);
+  products = byDrinkCategory(products, category);
   products = byQuery(products, q);
   const sorter = SORTERS[sort] || SORTERS.score_desc;
   products = [...products].sort(sorter);
+  if (limit) {
+    products = products.slice(0, Number(limit));
+  }
 
   res.json({
     market: cached.market,
     scrapedAt: cached.scrapedAt,
     gradeThresholds: GRADE_THRESHOLDS,
+    categories: CATEGORIES,
     products,
   });
 });

@@ -1,11 +1,13 @@
 // Default-Markt: REWE Germering
 const DEFAULT_PLZ = "82110";
 
-// wwIdent des manuell erhobenen Startdatensatzes für REWE Germering (siehe
-// scraper/importManualDataset.js, data/markets/germering-manual.json).
-// Wird als Default verwendet, solange kein per Live-Scrape ermittelter
-// Markt mit echter wwIdent vorliegt.
-const MANUAL_SEED_WWIDENT = "germering-manual";
+// wwIdent des mitgelieferten BEISPIEL-Datensatzes für REWE Germering (siehe
+// scraper/importManualDataset.js, data/markets/germering-beispiel.json).
+// Das ist KEINE echte REWE-Datenbank, nur ein Demo-Datensatz, damit das Tool
+// ohne Live-Scrape vorführbar ist. Wird als Fallback-Default verwendet,
+// solange kein per Live-Scrape ermittelter Markt mit echter wwIdent
+// vorliegt.
+const MANUAL_SEED_WWIDENT = "germering-beispiel";
 
 // Suchbegriffe als Fallback, falls sich Kategorie-Slugs nicht sauber
 // ermitteln lassen. Bewusst breit gefaechert, damit das meiste Alkohol-

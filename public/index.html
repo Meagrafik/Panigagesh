@@ -21,6 +21,10 @@
         <button id="market-search-btn">Suchen</button>
       </div>
       <ul class="market-results" id="market-results"></ul>
+      <p class="meta banner" id="example-data-banner" hidden>
+        ℹ️ Dies sind <strong>Beispieldaten</strong> zur Demonstration, keine
+        Live-REWE-Daten. Echte Daten kommen über <code>npm run scrape</code>.
+      </p>
     </section>
 
     <section class="panel" id="search-panel">
@@ -29,14 +33,33 @@
       <div id="search-result"></div>
     </section>
 
+    <section class="panel" id="filter-panel">
+      <h2>Filter</h2>
+      <div class="filter-row">
+        <span class="filter-label">Angebot:</span>
+        <div class="tabs" id="offer-tabs">
+          <button data-offer="standard" class="active">Standardsortiment</button>
+          <button data-offer="sonderpreis">Sonderangebote</button>
+          <button data-offer="alle">Beide</button>
+        </div>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Getränke-Kategorie:</span>
+        <div class="tabs" id="category-tabs">
+          <button data-category="alle" class="active">Alle</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="leaderboard-panel">
+      <h2>Bestenliste (Top 10)</h2>
+      <p class="meta">Höchster Panigagesh-Score der aktuellen Filterauswahl.</p>
+      <ol class="leaderboard" id="leaderboard-list"></ol>
+    </section>
+
     <section class="panel" id="table-panel">
       <div class="table-header">
         <h2>Sortiment</h2>
-        <div class="category-tabs" id="category-tabs">
-          <button data-category="standard" class="active">Standardsortiment</button>
-          <button data-category="sonderpreis">Sonderangebote</button>
-          <button data-category="alle">Beide</button>
-        </div>
       </div>
       <p class="meta" id="table-meta"></p>
       <div class="table-scroll">
@@ -44,6 +67,7 @@
           <thead>
             <tr>
               <th data-sort="name">Name</th>
+              <th>Kategorie</th>
               <th data-sort="price">Preis</th>
               <th>Volumen</th>
               <th>Vol.-%</th>

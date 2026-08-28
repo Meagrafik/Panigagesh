@@ -13,13 +13,19 @@ Zahl bekommt jedes Produkt eine **Panigagesh-Note von A (bester Wert) bis E
 
 ## Features
 
-- Sortierbare Tabelle des Alkohol-Sortiments mit Preis, Volumen, Vol.-%,
-  Score und A–E-Note.
+- Sortierbare Tabelle des Alkohol-Sortiments mit Kategorie, Preis, Volumen,
+  Vol.-%, Score und A–E-Note.
+- **Bestenliste (Top 10)**: die aktuell beste Score-Auswahl, respektiert die
+  gewählten Filter (Angebot + Getränke-Kategorie).
+- **Getränke-Kategorie-Filter**: Wein, Bier, Sekt & Sprudelwein, Spirituosen
+  (hart), Sonstige/Mixgetränke — automatisch anhand des Produktnamens
+  vergeben (`scraper/categorize.js`), egal ob die Daten vom Live-Scraper oder
+  manuell importiert stammen.
 - Freitext-Suche nach einem Produkt (erst im gecachten Datenset, sonst
   gezielter Live-Request an REWE für genau diesen einen Suchbegriff).
 - Marktwechsel: andere REWE-Filiale per PLZ/Stadt/Name auswählen.
-- Sonderangebote laufen als eigene Kategorie ("Sonderpreis") und fließen
-  standardmäßig **nicht** in die Standard-Ansicht ein; über die Tabs
+- Sonderangebote laufen als eigene Angebots-Kategorie ("Sonderpreis") und
+  fließen standardmäßig **nicht** in die Standard-Ansicht ein; über die Tabs
   "Standardsortiment / Sonderangebote / Beide" umschaltbar.
 - Manueller Rechner für Produkte, die (noch) nicht im Datenset sind.
 
@@ -30,11 +36,18 @@ npm install
 npm start            # startet den Server auf http://localhost:3000
 ```
 
-Das Tool ist **sofort mit echten Daten nutzbar**: `data/markets/germering-manual.json`
-enthält 50 manuell recherchierte REWE-Germering-Produkte (Name, Preis,
-Volumen, Vol.-%) inkl. berechnetem Score und Note und ist der Default-Markt.
+Das Tool ist **sofort vorführbar**: `data/markets/germering-beispiel.json`
+enthält 50 händisch recherchierte Beispielprodukte (Name, Preis, Volumen,
+Vol.-%) inkl. berechnetem Score, Note und Kategorie und dient als
+Fallback-Default, solange kein echter Scrape vorliegt.
 
-Zusätzlich (optional, siehe Einschränkungen unten):
+**Wichtig: Das ist nur ein Beispieldatensatz, keine echte Datenbank.** Die
+eigentliche Produktdatenbank soll aus dem Live-Scraper kommen (auch für
+dieselben Produkte, die aktuell im Beispieldatensatz stehen) — siehe unten.
+Solange kein Markt live gescraped wurde, zeigt die UI dafür einen deutlichen
+Hinweis ("Beispieldaten") an.
+
+Live-Scrape (optional, siehe Einschränkungen unten):
 
 ```bash
 npm run scrape                  # Live-Scrape REWE Germering (PLZ 82110)
@@ -44,49 +57,56 @@ npm run scrape -- --plz 12345   # Live-Scrape eines anderen Marktes
 Der Server kann Märkte auch **on-demand** live scrapen, wenn sie über die
 UI-Marktsuche ausgewählt werden und noch nicht in `data/markets/` liegen.
 
-### Eigene manuelle Daten erfassen/aktualisieren
+### Beispiel-/Übergangsdaten aktualisieren
 
-Falls der Live-Scraper (noch) nicht funktioniert oder man Preise lieber von
-Hand pflegt: ein JSON-Array `[{ "name", "volumeMl", "abvPercent", "priceEur",
-"isSonderpreis"? }, ...]` anlegen und importieren:
+Nur als Krücke, solange der Live-Scraper nicht läuft: ein JSON-Array
+`[{ "name", "volumeMl", "abvPercent", "priceEur", "isSonderpreis"?,
+"category"? }, ...]` anlegen und importieren:
 
 ```bash
-node scraper/importManualDataset.js pfad/zu/daten.json germering-manual "REWE Germering"
+node scraper/importManualDataset.js pfad/zu/daten.json germering-beispiel "REWE Germering – Beispieldaten"
 ```
 
-Das überschreibt `data/markets/germering-manual.json` mit Score und Note pro
+`category` ist optional — fehlt es, wird es automatisch anhand des
+Produktnamens erkannt (`scraper/categorize.js`). Das überschreibt die
+angegebene Datei in `data/markets/` mit Score, Note und Kategorie pro
 Produkt.
 
 ## Architektur
 
 ```
 /scraper
-  reweClient.js     # HTTP-Client für die inoffizielle shop.rewe.de-API
-  scrapeMarket.js    # Scrape-Orchestrierung (Kategorien/Suchbegriffe,
-                      # Parsing, Caching) — von CLI und Server genutzt
-  fetchRewe.js        # CLI-Einstiegspunkt (npm run scrape)
-  config.js           # Default-PLZ, Suchbegriffe, Kategorie-Slugs, Timings
+  categorize.js       # Getränke-Kategorie (Wein/Bier/Sekt/Spirituosen/...)
+                       # anhand des Produktnamens — für Scrape UND Import
+  reweClient.js        # HTTP-Client für die inoffizielle shop.rewe.de-API
+  scrapeMarket.js       # Scrape-Orchestrierung (REWE-Kategorie-Slugs/
+                         # Suchbegriffe, Parsing, Caching) — von CLI und
+                         # Server genutzt
+  fetchRewe.js           # CLI-Einstiegspunkt (npm run scrape)
+  config.js              # Default-PLZ, Suchbegriffe, REWE-Kategorie-Slugs, Timings
+  importManualDataset.js # Import eines Beispiel-/Übergangsdatensatzes
 /server
   index.js            # Express-App: statisches Frontend + API
   scoring.js           # Panigagesh-Score-Formel + feste A–E-Notengrenzen
   routes/markets.js    # Marktsuche/-auswahl (inkl. on-demand Scrape)
-  routes/products.js   # Produktliste (aus Cache) + Live-Suchfallback
-  importManualDataset.js  # Import eines von Hand erhobenen Datensatzes
+  routes/products.js   # Produktliste (aus Cache) + Live-Suchfallback,
+                        # Filter nach Angebot UND Getränke-Kategorie
 /public
   index.html / app.js / style.css / scoring.js  # reines Vanilla-JS, kein Build
 /data
   markets/
-    germering-manual.json  # Startdatensatz: 50 echte REWE-Germering-Produkte
-    <wwIdent>.json          # weitere gecachte Datensets (Live-Scrape/Import)
+    germering-beispiel.json  # Beispieldatensatz (siehe Hinweis oben), NICHT
+                              # die echte REWE-Datenbank
+    <wwIdent>.json            # echte Live-Scrape-Datensets (nach npm run scrape)
 ```
 
 ## Kalibrierung der A–E-Note
 
 Die festen Notengrenzen in `server/scoring.js` (und identisch in
-`public/scoring.js`) sind **anhand echter Daten kalibriert**: 50 manuell bei
-REWE Germering recherchierte Produkte (Mittelwert 19,7 ml/€, Median 16,1
-ml/€, Spanne ca. 5,7–68,3 ml/€ — der komplette Datensatz liegt in
-`data/markets/germering-manual.json`). Die Grenzen (A ≥ 28, B 18–<28, C
+`public/scoring.js`) sind **anhand echter Preisrecherche kalibriert**: 50
+händisch bei REWE Germering recherchierte Beispielprodukte (Mittelwert 19,7
+ml/€, Median 16,1 ml/€, Spanne ca. 5,7–68,3 ml/€ — der komplette Datensatz
+liegt in `data/markets/germering-beispiel.json`). Die Grenzen (A ≥ 28, B 18–<28, C
 13–<18, D 8–<13, E < 8) wurden so gewählt, dass alle fünf Noten im echten
 Sortiment tatsächlich vorkommen (E 8 %, D 26 %, C 28 %, B 20 %, A 18 % der
 50 Beispielprodukte) statt z. B. Note E im Alltag nie zu vergeben. Kommen
@@ -100,8 +120,8 @@ erneut zu prüfen und die Grenzen ggf. nachzuziehen (in **beiden** Dateien).
 mehreren Open-Source-Projekten genutzte, aber **inoffizielle** JSON-API
 unter `shop.rewe.de/api/...`, die der REWE-Online-Shop selbst verwendet. Sie
 kann sich jederzeit ändern. Das Tool selbst ist davon **nicht** abhängig —
-es funktioniert von Haus aus mit dem echten, manuell erhobenen
-Germering-Datensatz (siehe oben).
+es funktioniert von Haus aus mit dem mitgelieferten Beispieldatensatz (siehe
+oben), aber die **echte Produktdatenbank soll aus diesem Scraper kommen**.
 
 **Der Live-Scraper wurde in der Entwicklungsumgebung dieses Tools nicht
 gegen die echte API getestet** — die Sandbox, in der dieses Projekt gebaut
@@ -128,9 +148,11 @@ wurde, hatte keinen Netzwerkzugriff auf `shop.rewe.de`. Konkret heißt das:
    abgleichen: passen die Feldnamen für Preis/Titel/Grammage/Angebots-Flag?
    Falls nicht, dort anpassen.
 3. `npm run scrape` normal laufen lassen und die Ausgabe (`data/markets/…json`,
-   Konsole) prüfen: Wurden Kategorie-Slugs gefunden, oder ist auf
+   Konsole) prüfen: Wurden REWE-Kategorie-Slugs gefunden, oder ist auf
    Suchbegriffe zurückgefallen worden? Wie viele Produkte blieben
-   `unparsed`?
+   `unparsed`? Stimmt die automatisch erkannte Getränke-Kategorie
+   (`scraper/categorize.js`) grob, oder müssen Markennamen in den
+   Stichwortlisten ergänzt werden?
 
 ### Weitere Hinweise
 

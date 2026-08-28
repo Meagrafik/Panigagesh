@@ -1,11 +1,11 @@
 {
   "market": {
-    "wwIdent": "germering-manual",
+    "wwIdent": "germering-beispiel",
     "plz": null,
     "serviceType": "MANUAL",
-    "name": "REWE Germering (manuell erhoben)"
+    "name": "REWE Germering – Beispieldaten (kein Live-Scrape)"
   },
-  "scrapedAt": "2026-08-28T11:25:19.298Z",
+  "scrapedAt": "2026-08-28T11:32:42.634Z",
   "products": [
     {
       "id": "manual-wappenlese-wei-wein-lieblich-0",
@@ -15,6 +15,7 @@
       "volumeMl": 1000,
       "abvPercent": 9.5,
       "isSonderpreis": false,
+      "category": "wein",
       "score": 68.34532374100719,
       "grade": "A"
     },
@@ -26,6 +27,7 @@
       "volumeMl": 1500,
       "abvPercent": 7,
       "isSonderpreis": false,
+      "category": "sonstige",
       "score": 58.65921787709498,
       "grade": "A"
     },
@@ -37,6 +39,7 @@
       "volumeMl": 700,
       "abvPercent": 37.5,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 47.814207650273225,
       "grade": "A"
     },
@@ -48,6 +51,7 @@
       "volumeMl": 700,
       "abvPercent": 32,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 44.88977955911823,
       "grade": "A"
     },
@@ -59,6 +63,7 @@
       "volumeMl": 700,
       "abvPercent": 38,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 44.40734557595993,
       "grade": "A"
     },
@@ -70,6 +75,7 @@
       "volumeMl": 1000,
       "abvPercent": 96.4,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 32.24080267558529,
       "grade": "A"
     },
@@ -81,6 +87,7 @@
       "volumeMl": 750,
       "abvPercent": 6.9,
       "isSonderpreis": false,
+      "category": "sekt",
       "score": 28.910614525139668,
       "grade": "A"
     },
@@ -92,6 +99,7 @@
       "volumeMl": 500,
       "abvPercent": 5.2,
       "isSonderpreis": false,
+      "category": "bier",
       "score": 28.888888888888893,
       "grade": "A"
     },
@@ -103,6 +111,7 @@
       "volumeMl": 750,
       "abvPercent": 9.5,
       "isSonderpreis": false,
+      "category": "wein",
       "score": 28.6144578313253,
       "grade": "A"
     },
@@ -114,6 +123,7 @@
       "volumeMl": 700,
       "abvPercent": 37.5,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 26.813074565883557,
       "grade": "B"
     },
@@ -125,6 +135,7 @@
       "volumeMl": 700,
       "abvPercent": 18,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 25.250501002004007,
       "grade": "B"
     },
@@ -136,6 +147,7 @@
       "volumeMl": 500,
       "abvPercent": 80,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 24.257125530624624,
       "grade": "B"
     },
@@ -147,6 +159,7 @@
       "volumeMl": 700,
       "abvPercent": 38,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 22.185154295246036,
       "grade": "B"
     },
@@ -158,6 +171,7 @@
       "volumeMl": 700,
       "abvPercent": 37.5,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 20.207852193995382,
       "grade": "B"
     },
@@ -169,6 +183,7 @@
       "volumeMl": 700,
       "abvPercent": 37.5,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 18.763402430307362,
       "grade": "B"
     },
@@ -180,6 +195,7 @@
       "volumeMl": 700,
       "abvPercent": 37.5,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 18.763402430307362,
       "grade": "B"
     },
@@ -191,6 +207,7 @@
       "volumeMl": 700,
       "abvPercent": 37.5,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 18.763402430307362,
       "grade": "B"
     },
@@ -202,6 +219,7 @@
       "volumeMl": 700,
       "abvPercent": 40,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 18.67911941294196,
       "grade": "B"
     },
@@ -213,6 +231,7 @@
       "volumeMl": 700,
       "abvPercent": 37.5,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 18.115942028985508,
       "grade": "B"
     },
@@ -224,6 +243,7 @@
       "volumeMl": 700,
       "abvPercent": 38,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 17.745163442294864,
       "grade": "C"
     },
@@ -235,6 +255,7 @@
       "volumeMl": 700,
       "abvPercent": 37.5,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 17.511674449633087,
       "grade": "C"
     },
@@ -246,6 +267,7 @@
       "volumeMl": 700,
       "abvPercent": 40,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 17.51094434021263,
       "grade": "C"
     },
@@ -257,6 +279,7 @@
       "volumeMl": 700,
       "abvPercent": 18,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 17.28395061728395,
       "grade": "C"
     },
@@ -268,6 +291,7 @@
       "volumeMl": 700,
       "abvPercent": 35,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 16.90821256038647,
       "grade": "C"
     },
@@ -279,6 +303,7 @@
       "volumeMl": 330,
       "abvPercent": 5,
       "isSonderpreis": false,
+      "category": "sonstige",
       "score": 16.5,
       "grade": "C"
     },
@@ -290,6 +315,7 @@
       "volumeMl": 700,
       "abvPercent": 18,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 15.76971214017522,
       "grade": "C"
     },
@@ -301,6 +327,7 @@
       "volumeMl": 700,
       "abvPercent": 32,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 15.458937198067632,
       "grade": "C"
     },
@@ -312,6 +339,7 @@
       "volumeMl": 500,
       "abvPercent": 5.2,
       "isSonderpreis": false,
+      "category": "bier",
       "score": 15.384615384615387,
       "grade": "C"
     },
@@ -323,6 +351,7 @@
       "volumeMl": 700,
       "abvPercent": 16,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 15.363511659807957,
       "grade": "C"
     },
@@ -334,6 +363,7 @@
       "volumeMl": 700,
       "abvPercent": 16,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 15.363511659807957,
       "grade": "C"
     },
@@ -345,6 +375,7 @@
       "volumeMl": 700,
       "abvPercent": 16,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 15.363511659807957,
       "grade": "C"
     },
@@ -356,6 +387,7 @@
       "volumeMl": 250,
       "abvPercent": 5.9,
       "isSonderpreis": false,
+      "category": "sonstige",
       "score": 14.898989898989901,
       "grade": "C"
     },
@@ -367,6 +399,7 @@
       "volumeMl": 700,
       "abvPercent": 40,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 14.007003501750876,
       "grade": "C"
     },
@@ -378,6 +411,7 @@
       "volumeMl": 700,
       "abvPercent": 15,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 12.665862484921593,
       "grade": "D"
     },
@@ -389,6 +423,7 @@
       "volumeMl": 500,
       "abvPercent": 20,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 12.515644555694617,
       "grade": "D"
     },
@@ -400,6 +435,7 @@
       "volumeMl": 500,
       "abvPercent": 20,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 12.515644555694617,
       "grade": "D"
     },
@@ -411,6 +447,7 @@
       "volumeMl": 330,
       "abvPercent": 5.9,
       "isSonderpreis": false,
+      "category": "bier",
       "score": 11.5207100591716,
       "grade": "D"
     },
@@ -422,6 +459,7 @@
       "volumeMl": 330,
       "abvPercent": 5.2,
       "isSonderpreis": false,
+      "category": "sonstige",
       "score": 10.79245283018868,
       "grade": "D"
     },
@@ -433,6 +471,7 @@
       "volumeMl": 700,
       "abvPercent": 15,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 10.51051051051051,
       "grade": "D"
     },
@@ -444,6 +483,7 @@
       "volumeMl": 330,
       "abvPercent": 10,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 10.344827586206897,
       "grade": "D"
     },
@@ -455,6 +495,7 @@
       "volumeMl": 330,
       "abvPercent": 5.9,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 10.301587301587304,
       "grade": "D"
     },
@@ -466,6 +507,7 @@
       "volumeMl": 355,
       "abvPercent": 4.5,
       "isSonderpreis": false,
+      "category": "bier",
       "score": 10.047169811320755,
       "grade": "D"
     },
@@ -477,6 +519,7 @@
       "volumeMl": 330,
       "abvPercent": 4.5,
       "isSonderpreis": false,
+      "category": "bier",
       "score": 9.966442953020135,
       "grade": "D"
     },
@@ -488,6 +531,7 @@
       "volumeMl": 500,
       "abvPercent": 15,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 9.386733416770964,
       "grade": "D"
     },
@@ -499,6 +543,7 @@
       "volumeMl": 500,
       "abvPercent": 15,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 9.386733416770964,
       "grade": "D"
     },
@@ -510,6 +555,7 @@
       "volumeMl": 330,
       "abvPercent": 2.8,
       "isSonderpreis": false,
+      "category": "bier",
       "score": 8.477064220183484,
       "grade": "D"
     },
@@ -521,6 +567,7 @@
       "volumeMl": 500,
       "abvPercent": 15,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 6.824385805277525,
       "grade": "E"
     },
@@ -532,6 +579,7 @@
       "volumeMl": 700,
       "abvPercent": 40,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 6.223605245610135,
       "grade": "E"
     },
@@ -543,6 +591,7 @@
       "volumeMl": 330,
       "abvPercent": 3,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 5.8579881656804735,
       "grade": "E"
     },
@@ -554,6 +603,7 @@
       "volumeMl": 700,
       "abvPercent": 11,
       "isSonderpreis": false,
+      "category": "spirituosen",
       "score": 5.707931801334322,
       "grade": "E"
     }

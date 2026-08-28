@@ -8,9 +8,12 @@ const GRADE_COLORS = {
 
 const state = {
   market: null, // { wwIdent, serviceType, name, plz }
-  category: "standard",
+  offer: "standard", // standard | sonderpreis | alle
+  category: "alle", // wein | bier | sekt | spirituosen | sonstige | alle
   sort: "score_desc",
 };
+
+let categoryLabels = {}; // wird aus der ersten /api/products-Antwort befüllt
 
 function gradeBarHtml(grade) {
   const grades = ["A", "B", "C", "D", "E"];
@@ -21,6 +24,10 @@ function gradeBarHtml(grade) {
     })
     .join("");
   return `<div class="grade-bar">${segments}</div>`;
+}
+
+function categoryLabel(category) {
+  return categoryLabels[category] || category || "–";
 }
 
 function formatEur(value) {
@@ -68,12 +75,15 @@ function loadMarketFromStorage() {
 
 function renderCurrentMarket() {
   const el = document.getElementById("market-current");
+  const banner = document.getElementById("example-data-banner");
   if (!state.market) {
     el.textContent = "Kein Markt ausgewählt.";
+    banner.hidden = true;
     return;
   }
-  const { name, plz, wwIdent } = state.market;
+  const { name, plz, wwIdent, serviceType } = state.market;
   el.textContent = `Aktiver Markt: ${name || wwIdent}${plz ? ` (PLZ ${plz})` : ""}`;
+  banner.hidden = serviceType !== "MANUAL";
 }
 
 async function selectMarket(market) {
@@ -100,7 +110,7 @@ async function selectMarket(market) {
     document.getElementById("table-meta").textContent = `Stand: ${new Date(payload.scrapedAt).toLocaleString("de-DE")}`;
     document.getElementById("market-results").innerHTML = "";
     document.getElementById("market-query").value = "";
-    await loadProducts();
+    await refresh();
   } catch (err) {
     marketPanel.textContent = `Fehler: ${err.message}`;
   }
@@ -112,7 +122,7 @@ async function initMarket() {
     state.market = stored;
     renderCurrentMarket();
     try {
-      await loadProducts();
+      await refresh();
       return;
     } catch (err) {
       // gecachte Daten evtl. nicht mehr vorhanden - Default neu auflösen.
@@ -154,6 +164,7 @@ function renderProductRow(p) {
   if (p.isSonderpreis) tr.classList.add("sonderpreis-row");
   tr.innerHTML = `
     <td>${p.name}${p.isSonderpreis ? ' <span class="badge">Angebot</span>' : ""}</td>
+    <td>${categoryLabel(p.category)}</td>
     <td>${formatEur(p.priceEur)}</td>
     <td>${formatMl(p.volumeMl)}</td>
     <td>${formatAbv(p.abvPercent)}</td>
@@ -163,30 +174,92 @@ function renderProductRow(p) {
   return tr;
 }
 
+function renderCategoryTabsOnce(categories) {
+  const tabs = document.getElementById("category-tabs");
+  if (tabs.dataset.populated) return;
+  for (const { id, label } of categories) {
+    const btn = document.createElement("button");
+    btn.dataset.category = id;
+    btn.textContent = label;
+    tabs.appendChild(btn);
+  }
+  tabs.dataset.populated = "true";
+}
+
+function buildFilterParams(extra = {}) {
+  return new URLSearchParams({
+    market: state.market.wwIdent,
+    offer: state.offer,
+    category: state.category,
+    sort: state.sort,
+    ...extra,
+  });
+}
+
 async function loadProducts() {
   if (!state.market) return;
   const tableBody = document.getElementById("product-table-body");
-  tableBody.innerHTML = "<tr><td colspan='6'>Lade…</td></tr>";
-  const params = new URLSearchParams({
-    market: state.market.wwIdent,
-    category: state.category,
-    sort: state.sort,
-  });
+  tableBody.innerHTML = "<tr><td colspan='7'>Lade…</td></tr>";
   try {
-    const data = await fetchJson(`/api/products?${params.toString()}`);
+    const data = await fetchJson(`/api/products?${buildFilterParams().toString()}`);
+    if (data.categories) {
+      categoryLabels = Object.fromEntries(data.categories.map((c) => [c.id, c.label]));
+      renderCategoryTabsOnce(data.categories);
+    }
     document.getElementById("table-meta").textContent = `Stand: ${new Date(data.scrapedAt).toLocaleString("de-DE")} — ${data.products.length} Produkte`;
     tableBody.innerHTML = "";
     if (data.products.length === 0) {
-      tableBody.innerHTML = "<tr><td colspan='6'>Keine Produkte in dieser Kategorie.</td></tr>";
+      tableBody.innerHTML = "<tr><td colspan='7'>Keine Produkte in dieser Auswahl.</td></tr>";
       return;
     }
     for (const p of data.products) {
       tableBody.appendChild(renderProductRow(p));
     }
   } catch (err) {
-    tableBody.innerHTML = `<tr><td colspan="6" class="error">${err.message}</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="7" class="error">${err.message}</td></tr>`;
     throw err;
   }
+}
+
+async function loadLeaderboard() {
+  if (!state.market) return;
+  const listEl = document.getElementById("leaderboard-list");
+  listEl.innerHTML = "<li>Lade…</li>";
+  try {
+    const params = buildFilterParams({ sort: "score_desc", limit: "10" });
+    const data = await fetchJson(`/api/products?${params.toString()}`);
+    if (data.products.length === 0) {
+      listEl.innerHTML = "<li>Keine Produkte in dieser Auswahl.</li>";
+      return;
+    }
+    listEl.innerHTML = data.products
+      .map(
+        (p) => `
+      <li>
+        <span class="rank-name"><strong>${p.name}</strong> <span class="meta">(${categoryLabel(p.category)})</span></span>
+        <span class="rank-score">${formatScore(p.score)} ml/€ ${gradeBarHtml(p.grade)}</span>
+      </li>`
+      )
+      .join("");
+  } catch (err) {
+    listEl.innerHTML = `<li class="error">${err.message}</li>`;
+  }
+}
+
+async function refresh() {
+  await Promise.all([loadProducts(), loadLeaderboard()]);
+}
+
+function setupOfferTabs() {
+  const tabs = document.getElementById("offer-tabs");
+  tabs.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-offer]");
+    if (!btn) return;
+    tabs.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    state.offer = btn.dataset.offer;
+    refresh();
+  });
 }
 
 function setupCategoryTabs() {
@@ -197,7 +270,7 @@ function setupCategoryTabs() {
     tabs.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
     state.category = btn.dataset.category;
-    loadProducts();
+    refresh();
   });
 }
 
@@ -242,6 +315,7 @@ function setupProductSearch() {
             (p) => `
           <div class="search-hit">
             <strong>${p.name}</strong>${p.isSonderpreis ? ' <span class="badge">Angebot</span>' : ""}
+            <span class="meta">(${categoryLabel(p.category)})</span>
             — ${formatEur(p.priceEur)}, ${formatMl(p.volumeMl)}, ${formatAbv(p.abvPercent)}
             — Score ${formatScore(p.score)} ${p.grade ? gradeBarHtml(p.grade) : "(nicht berechenbar)"}
           </div>`
@@ -281,6 +355,7 @@ document.getElementById("market-query").addEventListener("keydown", (e) => {
   if (e.key === "Enter") searchMarkets();
 });
 
+setupOfferTabs();
 setupCategoryTabs();
 setupSorting();
 setupProductSearch();
