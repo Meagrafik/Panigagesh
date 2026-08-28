@@ -100,6 +100,101 @@ Produkt.
     <wwIdent>.json            # echte Live-Scrape-Datensets (nach npm run scrape)
 ```
 
+## Datenmodell
+
+Ein **Produkt-Objekt** sieht so aus (egal ob aus Live-Scrape, Beispieldatensatz
+oder Live-Suchfallback — überall dieselbe Form):
+
+```json
+{
+  "id": "manual-jagermeister-0-7-23",
+  "name": "Jägermeister (0,7)",
+  "grammage": null,
+  "priceEur": 14.49,
+  "volumeMl": 700,
+  "abvPercent": 35,
+  "isSonderpreis": false,
+  "category": "spirituosen",
+  "score": 16.91,
+  "grade": "C"
+}
+```
+
+| Feld | Typ | Bedeutung |
+|---|---|---|
+| `id` | string | Eindeutige ID (REWE-Produkt-ID beim Scrape, sonst generierter Slug) |
+| `name` | string | Produktname |
+| `grammage` | string \| null | Roh-Text zu Packungsgröße, falls vom Scraper vorhanden (nur intern zum Parsen genutzt) |
+| `priceEur` | number | Preis in Euro |
+| `volumeMl` | number | Volumen in ml |
+| `abvPercent` | number | Alkoholgehalt in Vol.-% |
+| `isSonderpreis` | boolean | Angebots-Flag (siehe Angebots-Filter) |
+| `category` | string | Eine von `wein`, `bier`, `sekt`, `spirituosen`, `sonstige` (siehe `scraper/categorize.js`) |
+| `score` | number \| null | Panigagesh-Score (ml Alkohol/€); `null` bei `unparsed`-Einträgen |
+| `grade` | string \| null | Panigagesh-Note `A`–`E`; `null` bei `unparsed`-Einträgen |
+
+Eine **Marktdatei** (`data/markets/<wwIdent>.json`) bündelt das so:
+
+```json
+{
+  "market": { "wwIdent": "...", "plz": "82110", "serviceType": "PICKUP", "name": "..." },
+  "scrapedAt": "2026-08-28T11:25:19.298Z",
+  "products": [ /* Produkt-Objekte, siehe oben */ ],
+  "unparsed": [ /* Produkt-Objekte ohne score/grade, konnten nicht berechnet werden */ ]
+}
+```
+
+## API
+
+Alle Endpunkte laufen unter dem Express-Server (`npm start`, Default Port 3000).
+
+| Methode & Pfad | Query/Body | Beschreibung |
+|---|---|---|
+| `GET /api/markets/default` | – | Liefert den Default-Markt: den mitgelieferten Beispieldatensatz, falls vorhanden, sonst Live-Auflösung von PLZ 82110 |
+| `GET /api/markets` | `query` (PLZ, Stadt oder Name) | Marktsuche; bei 5-stelliger PLZ über den bestätigten `service-portfolio`-Endpunkt, sonst über die unbestätigte Fuzzy-Suche |
+| `POST /api/markets/:wwIdent/select` | Body: `{ serviceType, name?, plz? }` | Aktiviert einen Markt: liest den Cache, oder scraped einmalig on-demand und cached das Ergebnis |
+| `GET /api/products` | `market` (Pflicht), `q`, `sort`, `offer`, `category`, `limit` | Produktliste des aktiven Marktes, gefiltert/sortiert (siehe Parameter unten) |
+| `GET /api/products/search` | `market`, `q` (Pflicht), `serviceType` | Live-Fallback-Suche nach einem einzelnen Begriff, falls im Cache kein Treffer |
+| `GET /api/score` | `volumeMl`, `abvPercent`, `priceEur` | Reine Score/Note-Berechnung ohne Marktbezug (serverseitiges Pendant zum Rechner im Frontend) |
+
+**Parameter für `GET /api/products`:**
+
+- `sort`: `score_desc` (Default), `score_asc`, `price_asc`, `price_desc`, `name_asc`, `name_desc`
+- `offer`: `standard` (Default, blendet Sonderangebote aus), `sonderpreis`, `alle`
+- `category`: `alle` (Default) oder eine der Kategorien aus dem Datenmodell oben
+- `limit`: optional, z. B. `10` für eine Bestenliste
+
+Beispiel-Antwort von `GET /api/products?market=germering-beispiel&category=wein`:
+
+```json
+{
+  "market": { "wwIdent": "germering-beispiel", "plz": null, "serviceType": "MANUAL", "name": "REWE Germering – Beispieldaten (kein Live-Scrape)" },
+  "scrapedAt": "2026-08-28T11:25:19.298Z",
+  "gradeThresholds": [ { "grade": "A", "min": 28 }, "..." ],
+  "categories": [ { "id": "wein", "label": "Wein" }, "..." ],
+  "products": [ /* gefilterte, sortierte Produkt-Objekte */ ]
+}
+```
+
+### Manuell testen (curl)
+
+```bash
+npm start &
+
+# Default-Markt auflösen
+curl -s http://localhost:3000/api/markets/default
+
+# Markt aktivieren (nötig, bevor /api/products etwas liefert)
+curl -s -X POST http://localhost:3000/api/markets/germering-beispiel/select \
+  -H "Content-Type: application/json" -d '{"serviceType":"MANUAL"}'
+
+# Bestenliste: Top 5 Spirituosen
+curl -s "http://localhost:3000/api/products?market=germering-beispiel&category=spirituosen&limit=5"
+
+# Manueller Score ohne Markt
+curl -s "http://localhost:3000/api/score?volumeMl=700&abvPercent=40&priceEur=15"
+```
+
 ## Kalibrierung der A–E-Note
 
 Die festen Notengrenzen in `server/scoring.js` (und identisch in
